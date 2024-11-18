@@ -29,4 +29,4 @@ class Message:
     UPDATED = "Updated successfully"
     NOT_PRESENT = "Not present in the database"
     ALL_FETCHED = "All fetched"
-    
+    DELETED = "Deleted Successfully"

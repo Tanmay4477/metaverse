@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from enum import Enum
-from models import User, Avatar
+from models import User, Avatar, Space
 from typing import List
 
 class Avatars(BaseModel):
@@ -38,10 +38,6 @@ class AvatarSchema(BaseModel):
     id: int
     image_url: int
 
-class ResponseWraper(BaseModel):
-    status: int
-    message: str
-    data: None | str | User | int | List[Avatar] | List[AvatarSchema]
 
 class Role(str, Enum):
     User = "user"
@@ -57,9 +53,9 @@ class UserSchema(BaseModel):
 
 class SpaceSchema(BaseModel):
     name: str
-    width: int
-    height: int
-    mapId: int | None
+    width: int = Field(default=None, allow_missing=True)
+    height: int = Field(default=None, allow_missing=True)
+    mapId: int = Field(default=None, allow_missing=True)
 
 class PayloadSchema(BaseModel):
     id: int
@@ -67,5 +63,26 @@ class PayloadSchema(BaseModel):
     iat: int
     exp: int
 
+class GetAllSpaceSchema(BaseModel):
+    id: int
+    height: int
+    width: int
+    name: str
+    thumbnail: str
+
+class SpaceListWraper(BaseModel):
+    status: int
+    message: str
+    spaces: List[Space]
+
+class PostSpaceSchema(BaseModel):
+    status: int
+    message: str
+    spaceId: int
+
+class ResponseWraper(BaseModel):
+    status: int
+    message: str
+    data: None | str | User | int | List[Avatar] | List[AvatarSchema]
 
 
