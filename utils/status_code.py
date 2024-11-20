@@ -30,3 +30,4 @@ class Message:
     NOT_PRESENT = "Not present in the database"
     ALL_FETCHED = "All fetched"
     DELETED = "Deleted Successfully"
+    GET = "Fetched Successfully"

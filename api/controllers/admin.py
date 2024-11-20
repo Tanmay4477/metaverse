@@ -1,10 +1,7 @@
 from sqlmodel import Session, select
 from utils.wraper import ResponseWraper, ElementSchema, MapSchema, UpdateElementSchema, AvatarSchema
 from utils.status_code import Http, Message
-from models.avatar import Avatar
-from models import Element
-from models.space import Space
-from models.space_element import SpaceElement
+from models import Element, Space, SpaceElement, Avatar
 from utils.auth import auth_wrapper
 from fastapi import Depends
 
@@ -53,13 +50,18 @@ def create_map_controller(map: MapSchema, db: Session, payload) -> ResponseWrape
         is_exist_element = db.exec(exist_element).first()
         if is_exist_element:
             return ResponseWraper(status=Http.StatusBadRequest, message=Message.NAME_TAKEN, data="Please change the element name")
-        db_element = Space.model_validate(map)
-        print("DB Element", db_element)
-        db_element.user_id = payload['id']
+        
+        db_element = Space(name=map.name, width=map.width, height=map.height, thumbnail=map.thumbnail, user_id=payload['id'])
         db.add(db_element)
+        db.flush()
+        print("Flush haua kya,", db_element)
+        for i in map.defaultElements:
+            if i.x > db_element.width or i.y > db_element.height:
+                return ResponseWraper(status=Http.StatusInternalServerError, message=Message.CatchError, data="Not valid place of elements")
+            space_element = SpaceElement(x=i.x, y=i.y, element_id=i.id, space_id=db_element.id)
+            db.add(space_element)
         db.commit()
         db.refresh(db_element)
-        print("DB Element2", db_element)
         return ResponseWraper(status=Http.StatusOk, message=Message.CREATED, data=db_element.id)
     except Exception as error:
         print(error)
