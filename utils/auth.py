@@ -21,7 +21,7 @@ def encode_token(jwt_id, jwt_type):
             'id': jwt_id,
             'role': jwt_type,
             'iat': datetime.now(timezone.utc),
-            'exp': datetime.now(timezone.utc) + timedelta(days=1, minutes=15)      
+            'exp': datetime.now(timezone.utc) + timedelta(days=10, minutes=15)      
         }
         encoded_jwt = jwt.encode(payload, secret, algorithm=ALGORITHM)
         return encoded_jwt
