@@ -18,7 +18,8 @@ def update_metadata(avatar_id: int, db: Session = Depends(get_session), payload 
     except Exception as e:
         print(e)
         return e
-    
+
+
 @USER_ROUTES.get("/avatars", response_model=ResponseWraper)
 def get_all_avatars(offset: int = 0, limit: int = Query(default = 10, le = 10), db: Session = Depends(get_session)):
     try:

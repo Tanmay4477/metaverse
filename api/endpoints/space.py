@@ -65,10 +65,10 @@ def add_an_element(element: AddElementSchema, db: Session = Depends(get_session)
         raise HTTPException(status_code=500, detail="Catch Error found")
 
 
-@SPACE_ROUTES.delete("/element", response_model=ResponseWraper)
-def delete_an_element(id: int, db: Session = Depends(get_session), payload: PayloadSchema = Depends(auth_wrapper)):
+@SPACE_ROUTES.delete("/element/{id1}", response_model=ResponseWraper)
+def delete_an_element(id1: int, db: Session = Depends(get_session), payload: PayloadSchema = Depends(auth_wrapper)):
     try:
-        response = delete_an_element_controller(id, db, payload)
+        response = delete_an_element_controller(id1, db, payload)
         return response
     except HTTPException as http_err:
         raise http_err

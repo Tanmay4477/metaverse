@@ -9,16 +9,10 @@ class AllElementsWraper(BaseModel):
     message: str
     elements: List[Element]
 
-class ElementSchema(BaseModel):
-    width: int
-    height: int
-    static: bool
-    image_url: str
-    name: str
 
 class GetSpaceElementSchema(BaseModel):
     id: int
-    element: ElementSchema
+    element: Element
     x: int
     y: int
 
@@ -27,12 +21,16 @@ class GetSpaceWraper(BaseModel):
     message: str
     height: int
     width: int
-    elements: List[GetSpaceElementSchema]
+    elements: List[GetSpaceElementSchema] | str
 
 class Avatars(BaseModel):
     id: int
     image_url: str
     name: str
+
+class CreateAvatar(BaseModel):
+    name: str
+    image_url: str
 
 class LoginUserSchema(BaseModel):
     username: str
@@ -61,9 +59,8 @@ class MapSchema(BaseModel):
     defaultElements: List[SpaceElementSchema] = []
 
 class AvatarSchema(BaseModel):
-    id: int
-    image_url: int
-
+    user_id: int
+    image_url: str | None
 
 class Role(str, Enum):
     User = "user"
@@ -78,8 +75,8 @@ class UserSchema(BaseModel):
     role: Role = Field(default=Role.User)
 
 class AddElementSchema(BaseModel):
-    elementId: int
-    spaceId: int
+    element_id: int
+    space_id: int
     x: int
     y: int
 
@@ -117,4 +114,3 @@ class ResponseWraper(BaseModel):
     status: int
     message: str
     data: None | str | User | int | List[Avatar] | List[AvatarSchema]
-

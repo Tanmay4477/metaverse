@@ -4,7 +4,6 @@ from utils.status_code import Http, Message
 from models.user import User
 from utils.auth import auth_wrapper, get_password_hash, verify_password, encode_token, decode_token
 
-
 def create_user_response(user: UserSchema, db: Session) -> ResponseWraper:
     try:
         result = select(User).where(User.username == user.username)
@@ -28,7 +27,7 @@ def give_token(user: LoginUserSchema, db: Session) -> ResponseWraper:
         statement = select(User).where(User.username == user.username)
         result = db.exec(statement).first()
         if not result:
-            return ResponseWraper(status=Http.StatusBadRequest, message=Message.UserNotExist, data="")
+            return ResponseWraper(status=Http.StatusForbidden, message=Message.UserNotExist, data="")
         verify_pass = verify_password(user.password, result.password)
         if not verify_pass:
             return ResponseWraper(status=Http.StatusBadRequest, message=Message.NotMatch, data="Try again")

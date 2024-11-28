@@ -1,7 +1,7 @@
 from sqlmodel import Session, select
-from utils.wraper import ResponseWraper, SpaceSchema, PayloadSchema, PostSpaceSchema, SpaceListWraper, GetSpaceWraper, AddElementSchema
+from utils.wraper import ResponseWraper, SpaceSchema, PayloadSchema, PostSpaceSchema, SpaceListWraper, GetSpaceWraper, AddElementSchema, GetSpaceElementSchema
 from utils.status_code import Http, Message
-from models import User, Space, SpaceElement
+from models import User, Space, SpaceElement, Element
 from utils.auth import auth_wrapper, get_password_hash, verify_password, encode_token, decode_token
 from fastapi import HTTPException
 
@@ -27,12 +27,13 @@ def create_space_controller(space: SpaceSchema, db: Session, payload: PayloadSch
             db.commit()
             db.refresh(space_data)
             #  Do something
-        else:
+        elif (space.height and space.width):
             space_data = Space(name=space.name, width=space.width, height=space.height, user_id=payload['id'])
             db.add(space_data)
             db.commit()
             db.refresh(space_data)
-        print(space_data, "Space Data")
+        else:
+            raise HTTPException(status_code=400, detail="Nothing found")
         return PostSpaceSchema(status=Http.StatusOk, message=Message.Signup, spaceId=space_data.id)
     except HTTPException as http_err:
         raise http_err
@@ -62,7 +63,6 @@ def get_all_spaces_controller(db: Session, payload: PayloadSchema) -> SpaceListW
     try:
         statement = select(Space.id, Space.height, Space.width, Space.thumbnail, Space.name, Space.user_id).where(Space.user_id == payload['id'])
         result = db.exec(statement).all()
-        print("Hi", result)
         return SpaceListWraper(status=Http.StatusOk, message=Message.ALL_FETCHED, spaces=result)
     except HTTPException as http_err:
         raise http_err
@@ -77,7 +77,23 @@ def get_space_controller(spaceId: int, db: Session, payload: PayloadSchema) -> G
             raise HTTPException(status_code=400, detail="Space Id not found")
         if space.user_id != payload['id']:
             raise HTTPException(status_code=400, detail="Invalid user")
-        return GetSpaceWraper(status=200, message=Message.GET, height=space.height, width=space.width, elements=space.space_elements_list) 
+
+        # list2 = [x.element_id for x in space.space_elements_list]
+        # statement = select(Element).where(Element.id.in_(list2))
+        # elements = db.exec(statement).all()           
+
+        list = []
+        for x in space.space_elements_list:
+            print(x, "fdjjjjjjjjjjjjjjjjjj")
+            list.append({
+                "id": x.id,
+                "x": x.x,
+                "y": x.y,
+                "element": x.element_list
+            })
+        # space_to_return = GetSpaceElementSchema(id=space_to_get.id, x=space_to_get.x, y=space_to_get.y, element=elements)
+        # print(space_to_return, "2888888888888888")
+        return GetSpaceWraper(status=200, message=Message.GET, height=space.height, width=space.width, elements=list) 
     except HTTPException as http_err:
         raise http_err
     except Exception as error:
@@ -87,23 +103,22 @@ def get_space_controller(spaceId: int, db: Session, payload: PayloadSchema) -> G
 
 def add_an_element_controller(element: AddElementSchema, db: Session, payload: PayloadSchema) -> ResponseWraper:
     try:
-        print("Element:, ", element)
-        print("Space Id", element.spaceId) 
-        space = db.get(Space, element.spaceId)
-        print(space, "my space")
+        
+        space = db.get(Space, element.space_id)
+    
         if space.user_id != payload['id']:
             raise HTTPException(status_code=400, detail="User not eligible")
         if space.width <= element.x or space.height <= element.y:
             raise HTTPException(status_code=400, detail="Space not exist this much")
-        print("jqdsvcud")
         # if space.element.x and space.element.y:
         #     raise HTTPException(status_code=400, detail="Already element present")
         #  one more check as it should be empty
-        print("Jhandu bsm")
+        print(space, "dkjcnvdkjnv dkj")
         space_element = SpaceElement.model_validate(element)        
         db.add(space_element)
         db.commit()
         db.refresh(space_element)
+        print(space_element, "kjdfnvdkjvbn dkj ")
         return ResponseWraper(status=200, message=Message.CREATED, data = "Element added successfully")
     except HTTPException as http_err:
         raise http_err
@@ -115,11 +130,9 @@ def add_an_element_controller(element: AddElementSchema, db: Session, payload: P
 def delete_an_element_controller(id: int, db: Session, payload: PayloadSchema) -> ResponseWraper:
     try:
         space_element = db.get(SpaceElement, id)
-        print("Spcdjonsvkjvb ", space_element)
-        print(payload, "This is payload")
         if not space_element:
             raise HTTPException(status_code=400, detail="Space Id not found")
-        if space_element.user_id != payload['id']:
+        if space_element.space_list.user_id != payload['id']:
             raise HTTPException(status_code=400, detail="Invalid user")
         db.delete(space_element)
         db.commit()

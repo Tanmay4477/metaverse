@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from api.controllers.admin import create_element_controller, update_element_controller, create_map_controller, create_avatar_controller
-from utils.wraper import ResponseWraper, ElementSchema, MapSchema, UpdateElementSchema, AvatarSchema
+from utils.wraper import ResponseWraper, ElementSchema, MapSchema, UpdateElementSchema, CreateAvatar
 from sqlmodel import Session
 from db.config import get_session
 from utils.auth import auth_wrapper
@@ -37,11 +37,14 @@ def create_map(map: MapSchema, db: Session = Depends(get_session), payload = Dep
 
 
 @ADMIN_ROUTES.post("/avatar", response_model=ResponseWraper)
-def create_avatar(avatar: AvatarSchema, db: Session = Depends(get_session), payload = Depends(auth_wrapper)):
+def create_avatar(avatar: CreateAvatar, db: Session = Depends(get_session), payload = Depends(auth_wrapper)):
+    print('fdlvnsdkj bsk')
     try:
+        print("kjbnvkjdf")
         value = create_avatar_controller(avatar, db, payload)
         return value
     except Exception as e:
         print(e)
         return e
+
     

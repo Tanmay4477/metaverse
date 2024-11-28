@@ -18,7 +18,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 def health_checkup():
-    return {"msg": "Tanmay is a good boy"}
+    return {"msg": "Hi, The Backend is running"}
 
 app.include_router(USER_ROUTES, prefix="/user" ,tags=["users"])
 app.include_router(AUTH_ROUTES, prefix="/auth" ,tags=["auth"])

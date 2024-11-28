@@ -12,16 +12,15 @@ def update_metadata_controller(avatar_id: int, db: Session, payload):
         user_id = payload['id']
         user = db.get(User, user_id)
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=403, detail="User not found")
         avatar_exist = db.get(Avatar, avatar_id)
         if avatar_exist is None:
-            raise HTTPException(status_code=404, detail="Avatar not found")
+            raise HTTPException(status_code=403, detail="Avatar not found")
 
         user.avatar_id = avatar_id
         db.add(user)
         db.commit()
         db.refresh(user)
-        print("user", user)
         return ResponseWraper(status=Http.StatusOk, message=Message.UPDATED, data="Changed")
     except HTTPException as http_err:
         raise http_err
@@ -41,16 +40,13 @@ def get_all_avatars_controller(offset, limit, db: Session) -> ResponseWraper:
 def get_others_metadata_controller(ids: list[int], db: Session) -> ResponseWraper:
     try:
         idList = ast.literal_eval(ids)
-        print("Yhis is come sonc")
         statement = select(User).where(User.id.in_(idList))
-        print("Yhis is come ", statement)
         result = db.exec(statement).all()
-        print("Yhis is kjvbidkjxbdfj ", result)
-        avatars = [User(user_id = user.id, image_url=user.avatar_list.image_url) for user in result]
-        print({"fgnmntsfnsfg": avatars})
-        return ResponseWraper(status=Http.StatusOk, message=Message.ALL_FETCHED, data="hi")
+        avatars = [AvatarSchema(user_id = user.id, image_url=getattr(user.avatar_list, 'image_url', None)) for user in result]
+        return ResponseWraper(status=Http.StatusOk, message=Message.ALL_FETCHED, data=avatars)
     except Exception as error:
         print(error)
         raise HTTPException(status_code=500, detail="Catch Error Found")
+
 
     
