@@ -4,6 +4,7 @@ from utils.wraper import ResponseWraper, ElementSchema, MapSchema, UpdateElement
 from sqlmodel import Session
 from db.config import get_session
 from utils.auth import auth_wrapper
+from fastapi import HTTPException
 
 ADMIN_ROUTES = APIRouter()
 
@@ -12,18 +13,20 @@ def create_element(element: ElementSchema, db: Session = Depends(get_session), p
     try:
         response = create_element_controller(element, db, payload)
         return response
+    except HTTPException as http_err:
+        raise http_err
     except Exception as e:
-        print(e)
-        return e
+        raise HTTPException(status_code=500, detail="Catch Error found")
 
 @ADMIN_ROUTES.patch("/element/{elementId}", response_model=ResponseWraper)
 def update_element(element: UpdateElementSchema, elementId: int, db: Session = Depends(get_session), payload = Depends(auth_wrapper)):
     try:
         value = update_element_controller(elementId, element, db, payload)
         return value
+    except HTTPException as http_err:
+        raise http_err
     except Exception as e:
-        print(e)
-        return e
+        raise HTTPException(status_code=500, detail="Catch Error found")
 
 
 @ADMIN_ROUTES.post("/map", response_model=ResponseWraper)
@@ -31,9 +34,10 @@ def create_map(map: MapSchema, db: Session = Depends(get_session), payload = Dep
     try:
         value = create_map_controller(map, db, payload)
         return value
+    except HTTPException as http_err:
+        raise http_err
     except Exception as e:
-        print(e)
-        return e
+       raise HTTPException(status_code=500, detail="Catch Error found")
 
 
 @ADMIN_ROUTES.post("/avatar", response_model=ResponseWraper)
@@ -43,8 +47,9 @@ def create_avatar(avatar: CreateAvatar, db: Session = Depends(get_session), payl
         print("kjbnvkjdf")
         value = create_avatar_controller(avatar, db, payload)
         return value
+    except HTTPException as http_err:
+        raise http_err
     except Exception as e:
-        print(e)
-        return e
+        raise HTTPException(status_code=500, detail="Catch Error found")
 
     
