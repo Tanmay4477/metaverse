@@ -1,1 +1,1 @@
-Checkout their docs at - metaverse.tanmayjain.me/docs
+Checkout their docs at - http://metaverse.tanmayjain.me/docs
