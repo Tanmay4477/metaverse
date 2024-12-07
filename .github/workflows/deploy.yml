@@ -24,10 +24,10 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: tanmay4477/meta1  # Replace with your Docker Hub username and repository
+        tags: tanmay4477/meta1:latest  # Tag the image with 'latest' or another version tag
 
     - name: Verify Pushed Image
-      run: docker pull tanmay4477/meta1  # Replace with your Docker Hub username and repository
+      run: docker pull tanmay4477/meta1:latest  # Pull the latest image for verification
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
@@ -36,7 +36,9 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-         sudo docker pull tanmay4477/meta1
-         sudo docker stop meta1 || true
-         sudo docker rm meta1 || true
-         sudo docker run -d --name meta1 -p 8001:8001 tanmay4477/meta1
+          sudo docker pull tanmay4477/meta1:latest
+          sudo docker stop meta1 || true
+          sudo docker rm meta1 || true
+          sudo docker rmi tanmay4477/meta1:latest || true
+          sudo docker image prune -f
+          sudo docker run -d --name meta1 -p 8001:8001 tanmay4477/meta1:latest
