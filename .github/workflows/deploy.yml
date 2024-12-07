@@ -40,4 +40,5 @@ jobs:
           sudo docker stop meta1 || true
           sudo docker rm meta1 || true
           sudo docker rmi tanmay4477/meta1:latest || true
+          sudo docker image prune -f
           sudo docker run -d --name meta1 -p 8001:8001 tanmay4477/meta1:latest
